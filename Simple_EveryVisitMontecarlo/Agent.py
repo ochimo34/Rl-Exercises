@@ -30,7 +30,7 @@ class Agent(object):
 		self._done = False
 		self._state = state0
 		self._action = np.nan
-		self._s_a_historys = [[self._state, _action]]
+		self._s_a_historys = [[self._state, self._action]]
 		self._reward_historys = [self._total_reward]
 		return
 

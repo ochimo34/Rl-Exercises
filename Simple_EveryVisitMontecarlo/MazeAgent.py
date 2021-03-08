@@ -107,30 +107,72 @@ class MazeAgent(Agent):
 
 		# Brainの更新処理
 		# self._brain.update_q_function()
-		
 
+		# a' -> r''
+		reward = 0.0
+		if next_state == 8:
+			reward = 1.0
+		else:
+			reward = -0.01
+		self.add_reward(reward, time_step)
 
+		# 履歴の追加
+		self._s_a_historys.append([next_state, next_action])
+		self._s_a_r_historys.append([next_state, next_action, reward])
 
+		# ゴールの指定
+		self._state = next_state
+		self._action = next_action
+		if next_state == 8:
+			self._done = True
+		else:
+			self._done = False
 
+		return self._done
 
+	def agent_on_done(self, episode, time_step):
+		"""
+		Academyのエピソード完了後にコールされる
+		・Academyからコールされるコールバック関数
+		"""
+		#===================================
+		# エピソード完了後の処理
+		#===================================
+		print('エピソード = {0} / 最終時間ステップ数 = {1}'.format(episode, time_step))
+		print('迷路を解くのにかかったステップ数:' + str(len(self._s_a_r_historys)))
 
+		# εの衰退
+		self._brain.delay_epsilon()
 
+		# 累積報酬の追加
+		self._reward_historys.append(self._total_reward)
 
+		# 逐次訪問MCによる方策評価
+		self._brain.update_q_function(self._s_a_r_historys)
 
+		#------------------------------------
+		# Q関数とV関数
+		#------------------------------------
+		q_function = self._brain.get_q_function()
 
+		# エピソード開始時点との差分
+		if episode == 0:
+			# 初回エピソードの場合は履歴がないので、初期値
+			# deep copyしたものをappend
+			copy_q_function = self._brain.get_q_function().copy()
+			self._q_function_historys.append(copy_q_function)
+			copy_v_function = np.nanmax(copy_q_function, axis=1)
+			self._v_function_historys.append(copy_v_function)
 
+		# 状態価値の算出
+		new_v_function = np.nanmax(q_function, axis=1)
+		v_function = np.nanmax(self._q_function_historys[-1], axis=1)
+		delta_v_function = np.sum(np.abs(new_v_function, v_function))
+		print('V 関数の大きさ：', np.abs(new_v_function))
+		print('前回のエピソードのV関数との差分:', delta_v_function)
 
+		self._q_function_historys.append(q_function.copy())
+		self._v_function_historys.append(new_v_function)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+		return
+			

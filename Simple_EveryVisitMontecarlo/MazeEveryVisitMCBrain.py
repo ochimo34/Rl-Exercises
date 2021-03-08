@@ -25,8 +25,8 @@ class MazeEveryVisitMCBrain(Brain):
 		super().__init__(n_states, n_actions)
 		self._brain_parameters = brain_parameters
 		self._policy = np.zeros(shape=(self._n_states, self._n_actions))
-		self._policy = ***
-		self._q_function = ***
+		self._policy = self.convert_into_policy_from_brain_parameters(self._brain_parameters)
+		self._q_function = self.init_q_function(brain_parameters=self._brain_parameters)
 		self._epsilon = epsilon
 		self._gamma = gamma
 		return
@@ -46,7 +46,7 @@ class MazeEveryVisitMCBrain(Brain):
 		print("----------------------------------")
 		return
 
-	def get_q_functions(self):
+	def get_q_function(self):
 		"""
 		Q関数の値を取得する
 		"""
@@ -100,7 +100,7 @@ class MazeEveryVisitMCBrain(Brain):
 		"""
 		# エピソードの開始時点でランダムに初期化
 		# brain_parametersをかけることで、壁方向はnp.nanとなる
-		[a, b] = brain_parameters.shpae
+		[a, b] = brain_parameters.shape
 		q_function = np.random.rand(a, b) * brain_parameters
 		return q_function
 
@@ -113,6 +113,8 @@ class MazeEveryVisitMCBrain(Brain):
 		"""
 		from collections import defaultdict
 		N = defaultdict(lambda: [0] * self._n_actions)
+
+		total_reward = 0.0
 
 		# 逐次訪問MC法による方策評価
 		# t = 0 ~ T

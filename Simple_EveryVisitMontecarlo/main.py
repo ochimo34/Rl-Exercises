@@ -1,8 +1,12 @@
 import numpy as np
+import random
 
 # 自作モジュール
 from Academy import Academy
 from MazeAcademy import MazeAcademy
+
+from Agent import Agent
+from MazeAgent import MazeAgent
 
 from Brain import Brain
 from MazeEveryVisitMCBrain import MazeEveryVisitMCBrain
@@ -61,6 +65,32 @@ def main():
 			[     1,      1, np.nan, np.nan], # s7			
 		]
 	)
-	brain = MazeEveryVisitMCBrain(n_states=AGENT_NUM_STATES, n_actions=AGENT_NUM_ACTIONS, brain_parameters=brain_parameters, epsilon=BRAIN_GREEDY_EPSILON, gammma=BRAIN_GAMMA)
+	brain = MazeEveryVisitMCBrain(n_states=AGENT_NUM_STATES, n_actions=AGENT_NUM_ACTIONS, brain_parameters=brain_parameters, epsilon=BRAIN_GREEDY_EPSILON, gamma=BRAIN_GAMMA)
 	
+	#---------------------------
+	# Agentの生成
+	#---------------------------
+	agent = MazeAgent(brain=brain, gamma=BRAIN_GAMMA, state0=AGENT_INIT_STATE)
+
+	# AgentのBrainを設定
+	agent.set_brain(brain)
+
+	# 学習環境に作成したAgentを追加
+	academy.add_agent(agent)
+
+	agent.print('after init()')
+	brain.print('after init()')
+
+	#============================
+	# エピソードの実行
+	#============================
+	academy.academy_run()
+	agent.print('after simulation')
+	brain.print('after simulation')
+
+	return
+
+
+if __name__=='__main__':
+	main()
 	
